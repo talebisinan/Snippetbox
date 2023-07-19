@@ -1,0 +1,24 @@
+{{define "base"}}
+<!doctype html>
+<html lang='en'>
+
+<head>
+    <meta charset='utf-8'>
+    <title>{{template "title" .}} - Snippetbox</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp"></script>
+    
+</head>
+
+<body class="space-y-6 px-4 sm:px-6 py-8">
+    <header>
+        <h1 class="text-4xl"><a href='/' class="text-blue-500 hover:text-blue-800">Snippetbox</a></h1>
+    </header>
+    {{template "nav" .}}
+    <main>
+        {{template "main" .}}
+    </main>
+    <footer>Powered by <a href='https://golang.org/'>Go</a></footer>
+</body>
+
+</html>
+{{end}}
