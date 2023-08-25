@@ -3,6 +3,7 @@ package main
 import (
 	"html/template"
 	"path/filepath"
+	"time"
 
 	"snippetbox.sinantalebi.net/internal/models"
 )
@@ -10,11 +11,20 @@ import (
 // Define a templateData type to act as the holding structure for
 // any dynamic data that we want to pass to the HTML templates.
 type TemplateData struct {
-	Snippet  *models.Snippet
-	Snippets []*models.Snippet
+	CurrentYear int
+	Snippet     *models.Snippet
+	Snippets    []*models.Snippet
 }
 
-// Instead of reading from disk every time a page is requested, we only read
+func HumanDate(t time.Time) string {
+	return t.Format("02 Jan 2006 at 15:04")
+}
+
+var functions = template.FuncMap{
+	"HumanDate": HumanDate,
+}
+
+// Instead of reading from disk every time a page is requested, it only reads
 // the templates once at the start of the application.
 func NewTemplateCache() (map[string]*template.Template, error) {
 	cache := map[string]*template.Template{}
@@ -27,8 +37,8 @@ func NewTemplateCache() (map[string]*template.Template, error) {
 	for _, page := range pages {
 		name := filepath.Base(page)
 
-		// Parse the base template file into a template set.
-		ts, err := template.ParseFiles("./ui/html/base.tmpl")
+		// Parse the base template file into a template set and use the Funcs() method to register functions.
+		ts, err := template.New(name).Funcs(functions).ParseFiles("./ui/html/base.tmpl")
 		if err != nil {
 			return nil, err
 		}

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"runtime/debug"
+	"time"
 )
 
 // The serverError helper writes an error message and stack trace to the errorLog,
@@ -54,4 +55,11 @@ func (app *Application) renderPage(w http.ResponseWriter, status int, page strin
 	w.WriteHeader(status)
 
 	buf.WriteTo(w)
+}
+
+// Define a templateData type to act as the holding structure for any dynamic data that we want to pass to the HTML templates.
+func (app *Application) NewTemplateData(r *http.Request) *TemplateData {
+	return &TemplateData{
+		CurrentYear: time.Now().Year(),
+	}
 }
