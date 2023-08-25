@@ -11,3 +11,7 @@ go run ./cmd/web
 go run ./cmd/web -help
 ```
 
+```bash
+go run ./cmd/web -addr=":4000" -dsn="user:pass@/snippetbox?parseTime=true"
+```
+
