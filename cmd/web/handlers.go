@@ -52,32 +52,19 @@ func (app *Application) snippetView(w http.ResponseWriter, r *http.Request) {
 }
 
 type SnippetCreateForm struct {
-	Title   string
-	Content string
-	Expires string
+	Title   string `form:"title"`
+	Content string `form:"content"`
+	Expires string `form:"expires"`
 
-	validator.Validator
-}
-
-func (app *Application) showSnippetCreate(w http.ResponseWriter, r *http.Request) {
-	data := app.NewTemplateData(r)
-	data.Form = SnippetCreateForm{
-		Expires: "365",
-	}
-	app.renderPage(w, http.StatusOK, "create.tmpl", data)
+	validator.Validator `form:"-"` // ignored
 }
 
 func (app *Application) doSnippetCreate(w http.ResponseWriter, r *http.Request) {
-	err := r.ParseForm()
+	var form SnippetCreateForm
+	err := app.DecodePostForm(r, &form)
 	if err != nil {
 		app.clientError(w, http.StatusBadRequest)
 		return
-	}
-
-	form := SnippetCreateForm{
-		Title:   r.PostForm.Get("title"),
-		Content: r.PostForm.Get("content"),
-		Expires: r.PostForm.Get("expires"),
 	}
 
 	form.CheckField(validator.NotBlank(form.Title), "title", "This field cannot be blank")
@@ -99,4 +86,12 @@ func (app *Application) doSnippetCreate(w http.ResponseWriter, r *http.Request) 
 	}
 
 	http.Redirect(w, r, fmt.Sprintf("/snippet/view/%d", id), http.StatusSeeOther)
+}
+
+func (app *Application) showSnippetCreate(w http.ResponseWriter, r *http.Request) {
+	data := app.NewTemplateData(r)
+	data.Form = SnippetCreateForm{
+		Expires: "365",
+	}
+	app.renderPage(w, http.StatusOK, "create.tmpl", data)
 }
