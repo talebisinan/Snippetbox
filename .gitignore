@@ -16,3 +16,5 @@
 
 # files starting with __debug_bin, it's probably a debug binary
 __debug_bin
+
+tls/
