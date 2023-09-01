@@ -19,6 +19,7 @@ type TemplateData struct {
 	Form            any
 	Flash           string
 	IsAuthenticated bool
+	User            *models.User
 }
 
 func HumanDate(t time.Time) string {

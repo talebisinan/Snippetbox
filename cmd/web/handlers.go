@@ -213,6 +213,22 @@ func (app *Application) userLoginPost(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/snippet/create", http.StatusSeeOther)
 }
 
+func (app *Application) accountView(w http.ResponseWriter, r *http.Request) {
+	userID := app.sessionManager.GetInt(r.Context(), "authenticatedUserID")
+	user, err := app.users.Get(userID)
+	if err != nil {
+		if errors.Is(err, models.ErrNoRecord) {
+			http.Redirect(w, r, "/user/login", http.StatusSeeOther)
+		} else {
+			app.serverError(w, err)
+		}
+		return
+	}
+	templateData := app.NewTemplateData(r)
+	templateData.User = user
+	app.renderPage(w, http.StatusOK, "account.tmpl", templateData)
+}
+
 func (app *Application) userLogoutPost(w http.ResponseWriter, r *http.Request) {
 	// Use the RenewToken() method on the current session to change the session
 	// ID again.
