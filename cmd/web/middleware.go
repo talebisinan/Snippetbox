@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 )
@@ -61,6 +62,31 @@ func (app *Application) RequireAuthentication(next http.Handler) http.Handler {
 		if !app.IsAuthenticated(r) {
 			http.Redirect(w, r, "/user/login", http.StatusSeeOther)
 			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
+}
+
+func (app *Application) Authenticate(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		id := app.sessionManager.GetInt(r.Context(), "authenticatedUserID")
+		if id == 0 {
+			// pass the original and unchanged *http.Request to the next handler in the chain
+			next.ServeHTTP(w, r)
+			return
+		}
+
+		exists, err := app.users.Exists(id)
+		if err != nil {
+			app.serverError(w, err)
+			return
+		}
+
+		if exists {
+			ctx := context.WithValue(r.Context(), isAuthenticatedContextKey, true)
+			// modifies so the new copy of the request will be passed to the next handler in the chain
+			r = r.WithContext(ctx)
 		}
 
 		next.ServeHTTP(w, r)
