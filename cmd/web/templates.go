@@ -2,10 +2,12 @@ package main
 
 import (
 	"html/template"
+	"io/fs"
 	"path/filepath"
 	"time"
 
 	"snippetbox.sinantalebi.net/internal/models"
+	"snippetbox.sinantalebi.net/ui"
 )
 
 // Define a templateData type to act as the holding structure for
@@ -32,7 +34,7 @@ var functions = template.FuncMap{
 func NewTemplateCache() (map[string]*template.Template, error) {
 	cache := map[string]*template.Template{}
 
-	pages, err := filepath.Glob("./ui/html/pages/*.tmpl")
+	pages, err := fs.Glob(ui.Files, "html/pages/*.tmpl")
 	if err != nil {
 		return nil, err
 	}
@@ -40,20 +42,14 @@ func NewTemplateCache() (map[string]*template.Template, error) {
 	for _, page := range pages {
 		name := filepath.Base(page)
 
+		paterns := []string{
+			"html/base.tmpl",
+			"html/partials/*.tmpl",
+			page,
+		}
+
 		// Parse the base template file into a template set and use the Funcs() method to register functions.
-		ts, err := template.New(name).Funcs(functions).ParseFiles("./ui/html/base.tmpl")
-		if err != nil {
-			return nil, err
-		}
-
-		// Call ParseGlob() *on this template set* to add any partials.
-		ts, err = ts.ParseGlob("./ui/html/partials/*.tmpl")
-		if err != nil {
-			return nil, err
-		}
-
-		// Call ParseFiles() *on this template set* to add the page template.
-		ts, err = ts.ParseFiles(page)
+		ts, err := template.New(name).Funcs(functions).ParseFS(ui.Files, paterns...)
 		if err != nil {
 			return nil, err
 		}
