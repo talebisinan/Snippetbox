@@ -18,12 +18,11 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-// Define an Application struct to hold the Application-wide dependencies
 type Application struct {
 	errorLog       *log.Logger
 	infoLog        *log.Logger
-	snippets       *models.SnippetModel
-	users          *models.UserModel
+	snippets       models.SnippetModelInterface
+	users          models.UserModelInterface
 	templateCache  map[string]*template.Template
 	formDecoder    *form.Decoder
 	sessionManager *scs.SessionManager
@@ -31,7 +30,6 @@ type Application struct {
 
 func main() {
 	addr := flag.String("addr", ":4000", "HTTP network address")
-
 	dsn := flag.String("dsn", "pass-the-connection-string", "MySQL data source name")
 
 	flag.Parse()

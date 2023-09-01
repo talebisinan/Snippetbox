@@ -16,17 +16,10 @@ func (app *Application) LogRequest(next http.Handler) http.Handler {
 
 func (app *Application) RecoverPanic(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Use the built-in recover function to check if there has been a
-		// panic or not.
 		defer func() {
 			if err := recover(); err != nil {
-				// Set a "Connection: close" header on the response.
 				w.Header().Set("Connection", "close")
-
-				// Call the serverError helper method to return a 500 Internal
-				// Server response.
 				app.serverError(w, fmt.Errorf("%s", err))
-
 			}
 		}()
 
@@ -59,10 +52,14 @@ func SecureHeaders(next http.Handler) http.Handler {
 
 func (app *Application) RequireAuthentication(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
 		if !app.IsAuthenticated(r) {
+			app.sessionManager.Put(r.Context(), "redirectPathAfterLogin", r.URL.Path)
 			http.Redirect(w, r, "/user/login", http.StatusSeeOther)
 			return
 		}
+
+		w.Header().Add("Cache-Control", "no-store")
 
 		next.ServeHTTP(w, r)
 	})
@@ -70,9 +67,9 @@ func (app *Application) RequireAuthentication(next http.Handler) http.Handler {
 
 func (app *Application) Authenticate(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
 		id := app.sessionManager.GetInt(r.Context(), "authenticatedUserID")
 		if id == 0 {
-			// pass the original and unchanged *http.Request to the next handler in the chain
 			next.ServeHTTP(w, r)
 			return
 		}
@@ -85,7 +82,6 @@ func (app *Application) Authenticate(next http.Handler) http.Handler {
 
 		if exists {
 			ctx := context.WithValue(r.Context(), isAuthenticatedContextKey, true)
-			// modifies so the new copy of the request will be passed to the next handler in the chain
 			r = r.WithContext(ctx)
 		}
 

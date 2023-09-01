@@ -3,9 +3,10 @@ package main
 import (
 	"net/http"
 
+	"snippetbox.sinantalebi.net/ui"
+
 	"github.com/julienschmidt/httprouter"
 	"github.com/justinas/alice"
-	"snippetbox.sinantalebi.net/ui"
 )
 
 func (app *Application) routes() http.Handler {
@@ -15,8 +16,10 @@ func (app *Application) routes() http.Handler {
 		app.notFound(w)
 	})
 
-	fileserver := http.FileServer(http.FS(ui.Files))
-	router.Handler(http.MethodGet, "/static/*filepath", fileserver)
+	fileServer := http.FileServer(http.FS(ui.Files))
+	router.Handler(http.MethodGet, "/static/*filepath", fileServer)
+
+	router.HandlerFunc(http.MethodGet, "/ping", ping)
 
 	dynamic := alice.New(app.sessionManager.LoadAndSave, app.Authenticate)
 

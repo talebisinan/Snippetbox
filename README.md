@@ -1,18 +1,13 @@
 # Snippetbox
 
 #### Runnnig the application (default port 4000)
-Pass -addr flag to change the port like `-addr=":80"`.
 ```bash
-go run ./cmd/web
+go run ./cmd/web -dsn="user:pass@/snippetbox?parseTime=true"
 ```
 
 #### Viewing all flags
 ```bash
 go run ./cmd/web -help
-```
-
-```bash
-go run ./cmd/web -addr=":4000" -dsn="user:pass@/snippetbox?parseTime=true"
 ```
 
 #### Generating a self-signed TLS certificate
@@ -24,4 +19,10 @@ go run ./cmd/web -addr=":4000" -dsn="user:pass@/snippetbox?parseTime=true"
 ```bash
 cd tls
 go run location_in_first_step_/generate_cert.go --rsa-bits=2048 --host=localhost
+```
+
+#### Running Tests
+IDE's should automatically pickup the `*_test.go` files and run them. If not, run the following command:
+```bash
+go test ./cmd/web
 ```
