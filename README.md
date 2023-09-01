@@ -21,8 +21,23 @@ cd tls
 go run location_in_first_step_/generate_cert.go --rsa-bits=2048 --host=localhost
 ```
 
+#### Creating a test DB
+```bash
+CREATE DATABASE test_snippetbox CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+```
+
+```
+CREATE USER 'test_web'@'localhost';
+GRANT CREATE, DROP, ALTER, INDEX, SELECT, INSERT, UPDATE, DELETE ON test_snippetbox.* TO 'test_web'@'localhost';
+ALTER USER 'test_web'@'localhost' IDENTIFIED BY 'pass';
+```
 #### Running Tests
 IDE's should automatically pickup the `*_test.go` files and run them. If not, run the following command:
 ```bash
-go test ./cmd/web
+go test ./...
+```
+
+#### Coverage
+```bash
+go test ./... -cover
 ```
