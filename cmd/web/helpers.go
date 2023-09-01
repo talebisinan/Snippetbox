@@ -63,9 +63,9 @@ func (app *Application) renderPage(w http.ResponseWriter, status int, page strin
 // Define a templateData type to act as the holding structure for any dynamic data that we want to pass to the HTML templates.
 func (app *Application) NewTemplateData(r *http.Request) *TemplateData {
 	return &TemplateData{
-		CurrentYear: time.Now().Year(),
-		// Add the flash message to the template data, if one exists.
-		Flash: app.sessionManager.PopString(r.Context(), "flash"),
+		CurrentYear:     time.Now().Year(),
+		Flash:           app.sessionManager.PopString(r.Context(), "flash"),
+		IsAuthenticated: app.IsAuthenticated(r),
 	}
 }
 
@@ -84,4 +84,8 @@ func (app *Application) DecodePostForm(r *http.Request, dst any) error {
 	}
 
 	return nil
+}
+
+func (app *Application) IsAuthenticated(r *http.Request) bool {
+	return app.sessionManager.Exists(r.Context(), "authenticatedUserID")
 }
