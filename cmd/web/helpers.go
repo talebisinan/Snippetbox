@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/go-playground/form/v4"
+	"github.com/justinas/nosurf"
 )
 
 // The serverError helper writes an error message and stack trace to the errorLog,
@@ -66,6 +67,7 @@ func (app *Application) NewTemplateData(r *http.Request) *TemplateData {
 		CurrentYear:     time.Now().Year(),
 		Flash:           app.sessionManager.PopString(r.Context(), "flash"),
 		IsAuthenticated: app.IsAuthenticated(r),
+		CSRFToken:       nosurf.Token(r),
 	}
 }
 
